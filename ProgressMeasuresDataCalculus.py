@@ -12,7 +12,6 @@ j = 2
 print("________________PROGRESS MEASURE CALCULS________________")
 data = input("Enter the data from ProgressDaily :")
 GoalsNumber = int(input(f"Enter the Goals Number for Week ({WeekID}) : "))
-print(data)
 
 def output(WeekID, DaysID, GoalDoneDayID, WeekProgress, GoalsNumber, DayProgress):
     days_dict = {}
@@ -47,3 +46,4 @@ try :
 
 except Exception as e:
     print("Error:", e)
+
