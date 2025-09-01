@@ -9,10 +9,6 @@ WeekID = int()
 DaysID = [None] * 7
 j = 2
 
-print("________________PROGRESS MEASURE CALCULS________________")
-data = input("Enter the data from ProgressDaily :")
-GoalsNumber = int(input(f"Enter the Goals Number for Week ({WeekID}) : "))
-
 def output(WeekID, DaysID, GoalDoneDayID, WeekProgress, GoalsNumber, DayProgress):
     days_dict = {}
     for i in range(7):
@@ -28,9 +24,11 @@ def output(WeekID, DaysID, GoalDoneDayID, WeekProgress, GoalsNumber, DayProgress
     }
     return json.dumps(data_json, indent=4, separators=(',', ': '))
 
-
+print("________________PROGRESS MEASURE CALCULS________________")
+data = input("Enter the data from ProgressDaily :")
 databrute = data.replace(" ","").replace("\n","")
 pattern = r"(\d{6})\{(\d{4})\:(\d+)\,(\d{4})\:(\d+)\,(\d{4})\:(\d+),(\d{4})\:(\d+)\,(\d{4})\:(\d+)\,(\d{4})\:(\d+)\,(\d{4})\:(\d+)\}"
+GoalsNumber = int(input(f"Enter the Goals Number for Week ({re.search(pattern, databrute).group(1)}) : "))
 
 try :
     match = re.search(pattern, databrute)
@@ -46,4 +44,5 @@ try :
 
 except Exception as e:
     print("Error:", e)
+
 
