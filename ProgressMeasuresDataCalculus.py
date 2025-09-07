@@ -2,7 +2,7 @@ import re
 import json
 
 GoalDoneDayID = [None] * 7
-GoalsNumber = 30
+GoalsNumber = 0
 DayProgress = [None] * 7
 WeekProgress = 0
 WeekID = int()
