@@ -1,5 +1,5 @@
 # Personal
-This is a **personal cloud folder** to store and organize my own codes.  
+This is a **personal cloud folder** to store and organize my own codes (80% Brain, 20% IA).  
 
 - **Purpose:** Created for my personal needs.  
 - **Content:** Codes meant primarily for my use and reference, but maybe can help others.  
