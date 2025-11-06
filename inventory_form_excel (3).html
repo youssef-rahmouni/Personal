@@ -1,0 +1,162 @@
+import React, { useState } from 'react';
+import * as XLSX from 'xlsx';
+import { Button } from "@/components/ui/button";
+import { Download } from 'lucide-react';
+
+export default function EmployeeEquipmentApp() {
+  const [employees, setEmployees] = useState([]);
+  const [expandedEmployee, setExpandedEmployee] = useState(null);
+
+  const addEmployee = () => {
+    const newEmployee = {
+      id: Date.now(),
+      name: '',
+      equipments: [],
+      expandedEquipment: null,
+    };
+    setEmployees([...employees, newEmployee]);
+  };
+
+  const addEquipment = (employeeId) => {
+    const updated = employees.map((emp) => {
+      if (emp.id === employeeId) {
+        const newEq = {
+          id: Date.now(),
+          type: '',
+          serial: '',
+          date: '',
+        };
+        return { ...emp, equipments: [...emp.equipments, newEq] };
+      }
+      return emp;
+    });
+    setEmployees(updated);
+  };
+
+  const updateEmployee = (id, key, value) => {
+    setEmployees(employees.map(emp => emp.id === id ? { ...emp, [key]: value } : emp));
+  };
+
+  const updateEquipment = (employeeId, eqId, key, value) => {
+    const updated = employees.map(emp => {
+      if (emp.id === employeeId) {
+        const updatedEquipments = emp.equipments.map(eq => eq.id === eqId ? { ...eq, [key]: value } : eq);
+        return { ...emp, equipments: updatedEquipments };
+      }
+      return emp;
+    });
+    setEmployees(updated);
+  };
+
+  const toggleEmployeeExpand = (id) => {
+    setExpandedEmployee(expandedEmployee === id ? null : id);
+  };
+
+  const toggleEquipmentExpand = (employeeId, eqId) => {
+    const updated = employees.map(emp => {
+      if (emp.id === employeeId) {
+        const newExpanded = emp.expandedEquipment === eqId ? null : eqId;
+        return { ...emp, expandedEquipment: newExpanded };
+      }
+      return emp;
+    });
+    setEmployees(updated);
+  };
+
+  const downloadExcel = () => {
+    const rows = [];
+    employees.forEach(emp => {
+      emp.equipments.forEach(eq => {
+        rows.push({
+          Employee: emp.name,
+          Equipment: eq.type,
+          SerialNumber: eq.serial,
+          ReceivedDate: eq.date,
+        });
+      });
+    });
+
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Inventory');
+    XLSX.writeFile(wb, 'Employee_Inventory.xlsx');
+  };
+
+  return (
+    <div className="p-6 max-w-3xl mx-auto space-y-4">
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-2xl font-bold">Employee Equipment Manager</h1>
+        <Button onClick={downloadExcel} className="flex items-center gap-2">
+          <Download size={16} /> Download Excel
+        </Button>
+      </div>
+      <Button onClick={addEmployee}>+ Add Employee</Button>
+
+      {employees.map((emp) => (
+        <div key={emp.id} className="border rounded-lg p-3 mt-4">
+          <div className="flex justify-between items-center">
+            <input
+              value={emp.name}
+              onChange={(e) => updateEmployee(emp.id, 'name', e.target.value)}
+              placeholder="Employee Name"
+              className="border p-2 rounded w-2/3"
+            />
+            <Button onClick={() => toggleEmployeeExpand(emp.id)}>
+              {expandedEmployee === emp.id ? '▲' : '▼'}
+            </Button>
+          </div>
+
+          {expandedEmployee === emp.id && (
+            <div className="mt-3 space-y-2">
+              <Button onClick={() => addEquipment(emp.id)}>+ Add Equipment</Button>
+              {emp.equipments.map((eq) => (
+                <div key={eq.id} className="border p-2 rounded">
+                  <div className="flex justify-between items-center">
+                    <span>{eq.type || 'Equipment'} ({eq.serial.slice(-3) || '---'})</span>
+                    <Button onClick={() => toggleEquipmentExpand(emp.id, eq.id)}>
+                      {emp.expandedEquipment === eq.id ? '>' : '<'}
+                    </Button>
+                  </div>
+
+                  {emp.expandedEquipment === eq.id && (
+                    <div className="mt-2 space-y-2">
+                      <select
+                        value={eq.type}
+                        onChange={(e) => updateEquipment(emp.id, eq.id, 'type', e.target.value)}
+                        className="border p-2 rounded w-full"
+                      >
+                        <option value="">Select Equipment</option>
+                        <option>PC</option>
+                        <option>ECRAN</option>
+                        <option>CLAVIER SOURIS</option>
+                        <option>CASQUE</option>
+                        <option>PHONE</option>
+                        <option>FIX</option>
+                        <option>SIM</option>
+                      </select>
+
+                      <input
+                        type="text"
+                        placeholder="Serial Number"
+                        value={eq.serial}
+                        onChange={(e) => updateEquipment(emp.id, eq.id, 'serial', e.target.value)}
+                        className="border p-2 rounded w-full"
+                      />
+
+                      <input
+                        type="date"
+                        value={eq.date}
+                        onChange={(e) => updateEquipment(emp.id, eq.id, 'date', e.target.value)}
+                        className="border p-2 rounded w-full"
+                      />
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
