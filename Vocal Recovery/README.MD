@@ -20,7 +20,7 @@ Vocal-Recovery/
 ├── main.py             # The main script you run to start the program
 ├── tools.py            # Contains core functions (find, find_CSV, checkInput)
 ├── msg.py              # Handles UI text colors and message prompts
-├── CallsList.csv       # The database file for "Auto Search" mode
+├── CallsList.csv       # The example file for "Auto Search" mode (You should use youre own)
 ├── ToDo                # Your list of future features and fixes
 │
 ├── tests/              # (Suggested grouping for your test files)
