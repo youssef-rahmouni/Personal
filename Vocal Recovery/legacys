@@ -1,0 +1,93 @@
+'''
+
+while True:
+    to_recover = input(msg[4])
+    if os.path.isfile(to_recover):
+        print(msg[1].format(to_recover))
+        break
+    print(msg[0])
+
+while True:
+    # Here you can set the default source path by replace 'F:\\' with the right \\src\\path
+    default_src_records = os.path.join('F:\\')
+    src_records = input(msg[5].format(default_src_records))
+    if src_records.strip() == '':
+        src_records = default_src_records
+    if os.path.isdir(src_records):
+        print(msg[1].format(src_records))
+        break
+    print(msg[0])
+
+while True:
+    out_record = input(msg[6].format(os.path.join(os.getcwd(), 'out_record')))
+    if out_record.strip() == '' :
+        out_record = os.path.join(os.getcwd(), 'out_record')
+        if not os.path.isdir(out_record):
+            os.mkdir(out_record)
+    if os.path.isdir(out_record):
+        print(msg[1].format(out_record))
+        break
+    print(msg[0])
+
+
+
+    from pathlib import Path
+import os
+
+quit = 1
+
+
+while quit != 0 :
+    path = input(f"Enter path (default; {os.getcwd()}) : ")
+    if path.strip() == "":
+        path = os.path.join(os.getcwd())
+    while not os.path.exists(path):
+        print("The path dosen't exists !")
+        path = input(f"Enter path (default; {os.getcwd()}) : ")
+        if path.strip() == "":
+            path = os.path.join(os.getcwd())
+    path = Path(path)
+    print(path)
+    search = str(input("What you Search for : "))
+
+    print(f"\n--- Searching for '{search}' in {path} ---\n")
+
+    found = False
+    for item in path.rglob('*'):  # recursive search
+        if item.is_file() and search.casefold() in item.name.casefold():
+            print(item)
+            found = True
+
+    if not found:
+        print("No item matches your search.\n")
+
+
+search = input("Enter keyword: ")
+min_size = input("Enter min size with octet (default. Ignore) :")
+date = input("Enter min duration with this form 'YYYY-MM-DD' (default. Ignore) :")
+min_lght = input("Enter min duration with seconds (default. 580) :")
+
+
+if min_lght.strip() == '':
+    min_lght = 580 
+if min_size.strip() == '':
+    min_size = None
+if date.strip() == '':
+    date = None
+
+
+    for num in call_num:
+        for out in find(src_dir_Path, num):
+                try:
+                    shutil.copy2(out, out_result_Path)
+                    print(msg[3].format(os.path.basename(out), out_result_Path))
+                    if out is None :
+                        print([10].format(os.path.basename(out)))
+                    else :
+                         print('exist ', out)
+                except Exception as e:
+                    print(msg[2].format(os.path.basename(out), e))
+
+
+
+'''
