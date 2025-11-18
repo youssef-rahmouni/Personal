@@ -13,7 +13,7 @@ This makes it especially useful for call centers, technicians, and anyone trying
 ---
 
 ## 📂 Project Structure
-
+```
 Vocal-Recovery/
 │
 ├── src/
@@ -36,7 +36,7 @@ Vocal-Recovery/
 ├── legacys/                 # Old archived code
 ├── ToDo                     # Notes
 └── pyproject.toml / requirements.txt
-
+```
 
 ---
 
