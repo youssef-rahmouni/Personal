@@ -22,7 +22,7 @@ Vocal-Recovery/
 │       ├── main.py          # Entry point
 │       ├── tools.py         # Core logic
 │       ├── msg.py           # UI messages
-│       ├── CallsList.csv    # Static resource used by program
+│       └── CallsList.csv    # Static resource
 │
 ├── data/
 │   ├── out_record/          # Created at runtime
