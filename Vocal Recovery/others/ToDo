@@ -1,0 +1,16 @@
+1- The Script should search in the Server 'F' volume and find Calls Record that compatible with Phone number, Length and Date
+2- The Script should have a Process Bar that show the progress with details to make user have clear idea about what going on the backend
+3- The Script should have Professional Transcription function Vocal to Texts
+
+To Fix: 
+- Color and Bold don't function when i run script with external terminal
+- when the file is alredy existans it's return a process error, add something that delet existant content
+- add more search pattern like lenght, time. 
+
+What to do:
+- Search with lengh using multego function to calculate mp3 seconds (using a function isVocal to check file is with vocal extenstions)
+- Applicate search properitys to tools.py file and check it's work, he should take name, lenght, date, and return all compatibl file and copy to the out_record folder
+- Find good transcription API, and test it to an vocal for frensh vocal center
+- Applicate Transcription file to get file into out_record and start transcripted and store it in out_record/transcription
+- Check that the file is works with any machine, and correct errors, make final test
+- Organize files into github folder, and documentation 
