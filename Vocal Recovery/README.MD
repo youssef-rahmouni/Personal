@@ -14,28 +14,22 @@ This makes it especially useful for call centers, technicians, and anyone trying
 
 ## 📂 Project Structure
 ```
+
 Vocal-Recovery/
 │
-├── src/
-│   └── vocal_recovery/
-│       ├── __init__.py
-│       ├── main.py          # Entry point
-│       ├── tools.py         # Core logic
-│       ├── msg.py           # UI messages
-│       └── CallsList.csv    # Static resource
+├── main.py             # The main script you run to start the program
+├── tools.py            # Contains core functions (find, find_CSV, checkInput)
+├── msg.py              # Handles UI text colors and message prompts
+├── CallsList.csv       # The database file for "Auto Search" mode
+├── ToDo                # Your list of future features and fixes
 │
-├── data/
-│   ├── out_record/          # Created at runtime
-│   └── items_finds/         # Recovered audio files
-│
-├── tests/
+├── tests/              # (Suggested grouping for your test files)
 │   ├── test_lvl0.py
-│   ├── test_lvl1.py
-│   └── test_lvl2.py
+│   ├── testlvl1.py
+│   └── testlvl2.py
 │
-├── legacys/                 # Old archived code
-├── ToDo                     # Notes
-└── pyproject.toml / requirements.txt
+└── out_record/         # (Created automatically when running the app)
+    └── items_finds/    # Where found audio files are copied
 ```
 
 ---
