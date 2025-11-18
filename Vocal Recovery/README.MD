@@ -16,30 +16,33 @@ This makes it especially useful for call centers, technicians, and anyone trying
 
 Vocal-Recovery/
 │
-├── main.py # Entry point – start the program from here
-├── tools.py # Core logic (find, find_CSV, CheckInput, etc.)
-├── msg.py # UI messages, colored prompts, formatting
-├── CallsList.csv # Database for Auto-Search mode
-├── ToDo # Future features, improvements, bug notes
+├── src/
+│   └── vocal_recovery/
+│       ├── __init__.py
+│       ├── main.py          # Entry point
+│       ├── tools.py         # Core logic
+│       ├── msg.py           # UI messages
+│       ├── CallsList.csv    # Static resource used by program
 │
-├── tests/ # Suggested test folder
-│ ├── test_lvl0.py
-│ ├── testlvl1.py
-│ └── testlvl2.py
+├── data/
+│   ├── out_record/          # Created at runtime
+│   └── items_finds/         # Recovered audio files
 │
-├── legacys/ # Old archived code
+├── tests/
+│   ├── test_lvl0.py
+│   ├── test_lvl1.py
+│   └── test_lvl2.py
 │
-└── out_record/ # Auto-created on first run
-└── items_finds/ # Recovered audio files are stored here
+├── legacys/                 # Old archived code
+├── ToDo                     # Notes
+└── pyproject.toml / requirements.txt
 
-yaml
-Copy code
 
 ---
 
 ## 🚀 How It Works
 
-1. Choose **Auto Search** (uses data from `CallsList.csv`)  
+1. Choose **Auto Search** (uses file like `CallsList.csv`)  
    or **Manual Search** (enter duration, size, and date manually).
 
 2. The program scans your selected directory and analyzes each audio file’s metadata.
