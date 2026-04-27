@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Progress Measure</title>
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,600,700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+
+:root {
+  --bg:         #eef4fb;
+  --surface:    #ffffff;
+  --surface-2:  #f5f9fe;
+  --border:     #dae4f0;
+  --border-2:   #b8cfe4;
+  --text:       #0d1f35;
+  --text-muted: #4a6680;
+  --text-faint: #8aaac2;
+  --accent:     #1d6fa4;
+  --accent-bg:  #e8f3fb;
+  --accent-dim: rgba(29,111,164,0.12);
+  --accent-border: rgba(29,111,164,0.28);
+  --red:        #dc2626;
+  --red-bg:     #fef2f2;
+  --sans:       'Satoshi', 'Inter', sans-serif;
+  --mono:       'JetBrains Mono', monospace;
+  --r-sm:       6px;
+  --r-md:       10px;
+  --r-lg:       14px;
+  --sh-sm:      0 1px 2px rgba(0,30,60,0.05), 0 2px 8px rgba(0,30,60,0.05);
+  --sh-md:      0 2px 6px rgba(0,30,60,0.07), 0 8px 24px rgba(0,30,60,0.06);
+  --ease:       180ms cubic-bezier(0.16,1,0.3,1);
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--mono);
+  min-height: 100vh;
+  padding-bottom: 4rem;
+}
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 4px; }
+
+/* ── WRAPPER (centers all content) ─────────────── */
+.page-wrapper {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+/* ── HEADER ─────────────────────────────────────── */
+.site-header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 1.25rem 0;
+  margin-bottom: 2rem;
+}
+.site-header .page-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.h-brand {
+  font-family: var(--sans);
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+.h-brand span { color: var(--accent); }
+.h-tag {
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+/* ── CARD ───────────────────────────────────────── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-sm);
+}
+
+/* ── SECTION LABEL ──────────────────────────────── */
+.sec-label {
+  font-size: 0.6rem; letter-spacing: 0.2em;
+  text-transform: uppercase; color: var(--text-faint);
+  margin-bottom: 0.65rem;
+  display: flex; align-items: center; gap: 0.6rem;
+}
+.sec-label::after {
+  content: ''; flex: 1; height: 1px;
+  background: var(--border);
+}
+
+/* ── INPUT CARD ─────────────────────────────────── */
+.input-card { padding: 1.4rem; margin-bottom: 1.25rem; }
+
+.meta-row {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 1rem; margin-bottom: 1.25rem;
+}
+.field { display: flex; flex-direction: column; gap: 0.35rem; }
+.field-label {
+  font-size: 0.6rem; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--text-muted);
+  font-weight: 500;
+}
+
+input[type="text"], input[type="number"] {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text); font-family: var(--mono);
+  font-size: 0.92rem; padding: 0.5rem 0.8rem;
+  border-radius: var(--r-sm); outline: none; width: 100%;
+  -webkit-appearance: none; -moz-appearance: textfield;
+  transition: border-color var(--ease), box-shadow var(--ease), background var(--ease);
+}
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+input:focus {
+  border-color: var(--accent);
+  background: var(--surface);
+  box-shadow: 0 0 0 3px var(--accent-dim);
+}
+input::placeholder { color: var(--text-faint); }
+input.autofill {
+  border-color: var(--accent) !important;
+  background: var(--accent-bg) !important;
+  animation: flashin 0.4s ease;
+}
+@keyframes flashin { from { opacity: 0.5; } to { opacity: 1; } }
+
+#weekHint {
+  font-size: 0.6rem; color: var(--accent);
+  min-height: 1rem; letter-spacing: 0.04em;
+  opacity: 0; transition: opacity 0.2s;
+}
+#weekHint.show { opacity: 1; }
+
+/* ── DAYS GRID ──────────────────────────────────── */
+.days-grid { display: flex; flex-direction: column; gap: 0.4rem; }
+
+.day-row {
+  display: grid;
+  grid-template-columns: 106px 1fr; /* wide enough for "Mon · 2004" */
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.day-label {
+  font-size: 0.74rem;
+  color: var(--accent);
+  text-align: right;
+  padding-right: 0.3rem;
+  font-weight: 500;
+  white-space: nowrap;        /* CRITICAL — stays on one line */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.2s;
+}
+.day-label.empty { color: var(--text-faint); }
+
+.day-input {
+  font-size: 0.8rem !important;
+  padding: 0.38rem 0.72rem !important;
+  letter-spacing: 0.04em;
+}
+
+/* ── PASTE BOX ──────────────────────────────────── */
+.paste-section { margin-top: 1.1rem; }
+.paste-label {
+  font-size: 0.6rem; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--text-muted);
+  font-weight: 500; margin-bottom: 0.4rem;
+  display: flex; align-items: center; gap: 0.4rem;
+}
+.paste-dot {
+  width: 4px; height: 4px; border-radius: 50%;
+  background: var(--accent);
+}
+.paste-area {
+  width: 100%;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  color: var(--text-muted); font-family: var(--mono);
+  font-size: 0.72rem; padding: 0.55rem 0.8rem;
+  resize: vertical; min-height: 50px; outline: none;
+  line-height: 1.6;
+  transition: border-color var(--ease), background var(--ease);
+}
+.paste-area:focus {
+  border-color: var(--accent);
+  background: var(--surface);
+  box-shadow: 0 0 0 3px var(--accent-dim);
+  color: var(--text);
+}
+.paste-area::placeholder { color: var(--text-faint); }
+.paste-status {
+  font-size: 0.6rem; color: var(--accent);
+  margin-top: 0.3rem; min-height: 1rem;
+  opacity: 0; transition: opacity 0.25s;
+}
+.paste-status.show { opacity: 1; }
+
+/* ── BUTTON ─────────────────────────────────────── */
+.btn-calc {
+  display: block; width: 100%; margin-top: 1.25rem;
+  padding: 0.78rem 1rem;
+  background: var(--accent);
+  border: none;
+  color: #fff;
+  font-family: var(--sans);
+  font-size: 0.9rem; font-weight: 600;
+  letter-spacing: 0.03em; cursor: pointer;
+  border-radius: var(--r-md);
+  transition: all var(--ease);
+  box-shadow: 0 1px 2px rgba(13,148,136,0.2);
+}
+.btn-calc:hover {
+  background: #0f766e;
+  box-shadow: 0 4px 12px rgba(13,148,136,0.3);
+  transform: translateY(-1px);
+}
+.btn-calc:active { transform: scale(0.99) translateY(0); }
+
+.error-msg {
+  font-size: 0.68rem; color: var(--red); margin-top: 0.5rem;
+  display: none; letter-spacing: 0.03em;
+  padding: 0.4rem 0.6rem; background: var(--red-bg);
+  border-radius: var(--r-sm); border: 1px solid rgba(220,38,38,0.15);
+}
+.error-msg.show { display: block; }
+
+/* ── OUTPUT ROW ─────────────────────────────────── */
+.output-row {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 1rem; margin-bottom: 1rem;
+}
+.output-panel { display: none; animation: slideUp 0.3s ease both; }
+.output-panel.show { display: block; }
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.panel-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.6rem 0.9rem;
+  border-bottom: 1px solid var(--border);
+}
+.panel-title {
+  font-size: 0.58rem; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--text-faint);
+}
+.btn-copy {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-faint); font-family: var(--mono);
+  font-size: 0.58rem; letter-spacing: 0.1em;
+  text-transform: uppercase; padding: 0.22rem 0.55rem;
+  cursor: pointer; border-radius: 4px;
+  transition: all var(--ease);
+}
+.btn-copy:hover { border-color: var(--accent); color: var(--accent); }
+.btn-copy.copied { border-color: #16a34a; color: #16a34a; }
+.panel-body { padding: 0.9rem; overflow-x: auto; }
+
+pre {
+  font-family: var(--mono); font-size: 0.72rem;
+  line-height: 1.8; white-space: pre-wrap;
+  word-break: break-word; color: var(--text);
+}
+.jk { color: #0d9488; }
+.js { color: #b45309; }
+.jn { color: #7c3aed; }
+
+/* ── PERFORMANCE PANEL ──────────────────────────── */
+.perf-wrap { display: none; animation: slideUp 0.35s ease 0.08s both; margin-bottom: 1rem; }
+.perf-wrap.show { display: block; }
+
+/* Congrats banner — flow element, never clipped */
+.congrats-banner {
+  display: none;
+  margin: 0; padding: 0.55rem 1.1rem;
+  background: #f0fdf4;
+  border-bottom: 1px solid #bbf7d0;
+  color: #15803d;
+  font-family: var(--sans);
+  font-size: 0.78rem; font-weight: 600;
+  letter-spacing: 0.01em;
+  animation: banner-in 0.4s cubic-bezier(0.16,1,0.3,1) both;
+}
+.congrats-banner.show { display: block; }
+@keyframes banner-in {
+  from { opacity: 0; transform: scaleY(0.6); transform-origin: top; }
+  to   { opacity: 1; transform: scaleY(1); }
+}
+
+.perf-head {
+  display: flex; align-items: center;
+  padding: 0.9rem 1.1rem;
+  border-bottom: 1px solid var(--border);
+  gap: 1.25rem;
+}
+.perf-ident { flex: 1; }
+.perf-name {
+  font-family: var(--sans); font-size: 0.95rem;
+  font-weight: 700; color: var(--text); line-height: 1;
+}
+.perf-role {
+  font-size: 0.58rem; color: var(--text-faint);
+  letter-spacing: 0.16em; text-transform: uppercase;
+  margin-top: 0.28rem;
+}
+
+/* ── CIRCLE ─────────────────────────────────────── */
+.perf-circle-wrap {
+  position: relative;
+  width: 88px; height: 88px; flex-shrink: 0;
+}
+.perf-circle-wrap svg { width: 88px; height: 88px; display: block; }
+.perf-circle-center {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  pointer-events: none;
+}
+.perf-pct {
+  font-family: var(--sans); font-size: 1rem;
+  font-weight: 700; line-height: 1; color: var(--text);
+}
+.perf-pct-sub {
+  font-size: 0.5rem; color: var(--text-faint);
+  letter-spacing: 0.12em; text-transform: uppercase;
+  margin-top: 0.12rem;
+}
+
+.perf-body {
+  padding: 1.1rem;
+  font-size: 0.8rem; line-height: 1.9;
+  color: var(--text-muted); min-height: 80px;
+}
+.perf-body p { margin-bottom: 1rem; color: var(--text); }
+.perf-body p:last-child { margin-bottom: 0; }
+
+.perf-status {
+  color: var(--text-faint); font-size: 0.7rem;
+  display: flex; align-items: center; gap: 0.55rem;
+}
+.dots { display: inline-flex; gap: 3px; }
+.dots span {
+  width: 3px; height: 3px; background: var(--accent);
+  border-radius: 50%; animation: dp 1.2s ease-in-out infinite;
+}
+.dots span:nth-child(2){animation-delay:.2s;}
+.dots span:nth-child(3){animation-delay:.4s;}
+@keyframes dp {
+  0%,80%,100%{transform:scale(0.5);opacity:0.4;}
+  40%{transform:scale(1);opacity:1;}
+}
+
+.cursor {
+  display: inline-block; width: 2px; height: 0.85em;
+  background: var(--accent); vertical-align: text-bottom;
+  margin-left: 1px; animation: blink 0.7s step-end infinite;
+}
+@keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0;} }
+
+/* confetti particles */
+.confetti-p {
+  position: absolute; width: 5px; height: 5px;
+  border-radius: 50%; pointer-events: none;
+  animation: cfburst 1s ease forwards;
+}
+@keyframes cfburst {
+  0%   { transform: translate(0,0) scale(1); opacity: 1; }
+  100% { transform: translate(var(--tx),var(--ty)) scale(0); opacity: 0; }
+}
+
+/* ── RESET ──────────────────────────────────────── */
+.btn-reset {
+  display: none; margin-top: 1.25rem;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-faint); font-family: var(--mono);
+  font-size: 0.62rem; letter-spacing: 0.12em;
+  text-transform: uppercase; padding: 0.48rem 1.2rem;
+  cursor: pointer; border-radius: var(--r-sm);
+  transition: all var(--ease);
+}
+.btn-reset:hover { border-color: var(--border-2); color: var(--text); }
+.btn-reset.show { display: block; }
+
+/* ── FOOTER ─────────────────────────────────────── */
+.site-footer {
+  margin-top: 1.5rem;
+  padding-bottom: 2rem;
+}
+.site-footer .page-wrapper {
+  display: flex; align-items: center; gap: 1rem;
+}
+.f-link {
+  font-size: 0.6rem; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--text-faint);
+  text-decoration: none;
+  transition: color var(--ease);
+}
+.f-link:hover { color: var(--accent); }
+.f-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--border-2); }
+
+@media (max-width: 600px) {
+  .output-row { grid-template-columns: 1fr; }
+  .meta-row { grid-template-columns: 1fr; }
+  .perf-head { flex-wrap: wrap; }
+}
+</style>
+</head>
+<body>
+  
+<div style="position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0;">
+  <div style="position:absolute;width:500px;height:500px;background:#1d6fa4;border-radius:50%;filter:blur(90px);opacity:0.07;top:-150px;left:-100px;"></div>
+  <div style="position:absolute;width:380px;height:380px;background:#0ea5e9;border-radius:50%;filter:blur(80px);opacity:0.06;bottom:0;right:-80px;"></div>
+</div>
+
+<header class="site-header">
+  <div class="page-wrapper">
+    <div class="h-brand">Progress <span>Measure</span></div>
+    <div class="h-tag">Weekly goal tracking</div>
+  </div>
+</header>
+
+<div class="page-wrapper">
+
+  <div class="sec-label">Input</div>
+  <div class="card input-card">
+    <div class="meta-row">
+      <div class="field">
+        <label class="field-label" for="weekId">WeekID</label>
+        <input type="text" id="weekId" placeholder="DDMMYY — e.g. 200425" maxlength="6" autocomplete="off">
+        <div id="weekHint"></div>
+      </div>
+      <div class="field">
+        <label class="field-label" for="goalsNum">GoalsNumber</label>
+        <input type="number" id="goalsNum" placeholder="e.g. 49" min="1">
+      </div>
+    </div>
+
+    <div class="days-grid" id="daysGrid"></div>
+
+    <div class="paste-section">
+      <div class="paste-label">
+        <span class="paste-dot"></span>
+        Quick Paste
+      </div>
+      <textarea id="pasteBox" class="paste-area" rows="2"
+        placeholder='200425 { "2004" : "01020304", "2104" : "010203040612131617" } GoalsNumber: 49'></textarea>
+      <div id="pasteStatus" class="paste-status">✓ Parsed — columns filled automatically</div>
+    </div>
+
+    <div class="error-msg" id="errMsg"></div>
+    <button class="btn-calc" onclick="runCalc()">Get My Progress</button>
+  </div>
+
+  <!-- Outputs -->
+  <div class="output-row">
+    <div class="output-panel card" id="panelJson">
+      <div class="panel-head">
+        <span class="panel-title">Progress Output</span>
+        <button class="btn-copy" id="copyJsonBtn" onclick="doCopy('json')">Copy</button>
+      </div>
+      <div class="panel-body"><pre id="jsonOut"></pre></div>
+    </div>
+    <div class="output-panel card" id="panelNext" style="animation-delay:0.07s">
+      <div class="panel-head">
+        <span class="panel-title">Next Week Template</span>
+        <button class="btn-copy" id="copyNextBtn" onclick="doCopy('next')">Copy</button>
+      </div>
+      <div class="panel-body"><pre id="nextOut"></pre></div>
+    </div>
+  </div>
+
+  <!-- Performance Review -->
+  <div class="perf-wrap" id="perfWrap">
+    <div class="sec-label" style="margin-top:0.25rem">Performance Review</div>
+    <div class="card" id="perfPanel">
+
+      <!-- Congrats banner: flow element, always visible, never clipped -->
+      <div class="congrats-banner" id="congratsBanner">🎯 Excellent week — above 80%!</div>
+
+      <div class="perf-head">
+        <div class="perf-ident">
+          <div class="perf-name">TERENCE FLETCHER</div>
+          <div class="perf-role">Performance Evaluator — Studio One</div>
+        </div>
+        <div class="perf-circle-wrap" id="circleWrap">
+          <svg viewBox="0 0 88 88">
+            <circle cx="44" cy="44" r="36"
+              fill="none" stroke="#e2e8f0" stroke-width="6.5"/>
+            <circle cx="44" cy="44" r="36"
+              fill="none" stroke="#0d9488" stroke-width="6.5"
+              stroke-linecap="round"
+              stroke-dasharray="226.19"
+              stroke-dashoffset="226.19"
+              transform="rotate(-90 44 44)"
+              id="perfArc"
+              style="transition: stroke-dashoffset 1s cubic-bezier(0.25,1,0.5,1), stroke 0.6s ease;"/>
+          </svg>
+          <div class="perf-circle-center">
+            <div class="perf-pct" id="perfPct">—</div>
+            <div class="perf-pct-sub">week</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="perf-body" id="perfBody">
+        <div class="perf-status">Waiting for performance data</div>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-reset" id="resetBtn" onclick="doReset()">↺ Reset for next week</button>
+
+</div>
+
+<footer class="site-footer">
+  <div class="page-wrapper">
+    <a href="https://docs.google.com/document/d/1-3HQCEN61xEAKXr0VFFQblgRbXCnEHBqmV8xooWyY8k"
+       target="_blank" rel="noopener noreferrer" class="f-link">doc</a>
+    <div class="f-dot"></div>
+    <a href="#" class="f-link">data-history</a>
+  </div>
+</footer>
+ 
+<script>
+// ── STATE ────────────────────────────────────────
+let dayIds = [];
+let rawJson = '';
+let rawNext = '';
+const CIRCUM = 226.19; // 2π × 36
+
+// ── BUILD DAY ROWS ───────────────────────────────
+(function init() {
+  const grid  = document.getElementById('daysGrid');
+  const names = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  for (let i = 1; i <= 7; i++) {
+    const row = document.createElement('div');
+    row.className = 'day-row';
+    row.innerHTML =
+      `<div class="day-label empty" id="lbl${i}">${names[i-1]}</div>` +
+      `<input type="text" id="di${i}" class="day-input"
+         placeholder="GoalsIDs (e.g. 01020304)" autocomplete="off">`;
+    grid.appendChild(row);
+  }
+})();
+
+// ── WEEK ID INPUT ────────────────────────────────
+document.getElementById('weekId').addEventListener('input', function () {
+  const v = this.value.replace(/\D/g,'').slice(0,6);
+  this.value = v;
+  const hint  = document.getElementById('weekHint');
+  const names = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  if (v.length === 6) {
+    const ids = genWeekDays(v);
+    if (ids) {
+      dayIds = ids;
+      for (let i = 1; i <= 7; i++) {
+        const l = document.getElementById(`lbl${i}`);
+        l.textContent = names[i-1] + ' · ' + ids[i-1];
+        l.classList.remove('empty');
+      }
+      const d=parseInt(v.slice(0,2)), m=parseInt(v.slice(2,4)), y=parseInt('20'+v.slice(4,6));
+      const mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      hint.textContent = `Week of ${d} ${mo[m-1]} ${y}`;
+      hint.classList.add('show'); return;
+    }
+  }
+  for (let i = 1; i <= 7; i++) {
+    const l = document.getElementById(`lbl${i}`);
+    l.textContent = names[i-1]; l.classList.add('empty');
+  }
+  dayIds = []; hint.classList.remove('show');
+});
+
+// ── DATE HELPERS ─────────────────────────────────
+function genWeekDays(wid) {
+  try {
+    const d=parseInt(wid.slice(0,2)), m=parseInt(wid.slice(2,4)), y=parseInt('20'+wid.slice(4,6));
+    const s = new Date(y, m-1, d);
+    if (isNaN(s.getTime())) return null;
+    return Array.from({length:7}, (_,i) => {
+      const dt = new Date(s); dt.setDate(dt.getDate()+i);
+      return String(dt.getDate()).padStart(2,'0') + String(dt.getMonth()+1).padStart(2,'0');
+    });
+  } catch { return null; }
+}
+
+function getNextWeekIds(wid) {
+  const d=parseInt(wid.slice(0,2)), m=parseInt(wid.slice(2,4)), y=parseInt('20'+wid.slice(4,6));
+  const s = new Date(y, m-1, d+7);
+  const nwid = String(s.getDate()).padStart(2,'0') + String(s.getMonth()+1).padStart(2,'0') + String(s.getFullYear()).slice(2);
+  const days = Array.from({length:7}, (_,i) => {
+    const dt = new Date(s); dt.setDate(dt.getDate()+i);
+    return String(dt.getDate()).padStart(2,'0') + String(dt.getMonth()+1).padStart(2,'0');
+  });
+  return { nwid, days };
+}
+
+// ── QUICK PASTE ──────────────────────────────────
+document.getElementById('pasteBox').addEventListener('input', function() {
+  parsePaste(this.value.trim());
+});
+
+function parsePaste(raw) {
+  if (!raw) return;
+  try {
+    const wm = raw.match(/^(\d{6})/);
+    if (!wm) return;
+    const wid = wm[1];
+    const gnm = raw.match(/GoalsNumber\s*:\s*(\d+)/i);
+    const js = raw.indexOf('{'), je = raw.lastIndexOf('}');
+    if (js === -1 || je === -1) return;
+    const dayData = JSON.parse(raw.slice(js, je+1));
+
+    const wEl = document.getElementById('weekId');
+    wEl.value = wid;
+    wEl.dispatchEvent(new Event('input'));
+    flashEl(wEl);
+
+    if (gnm) { const gEl = document.getElementById('goalsNum'); gEl.value = parseInt(gnm[1]); flashEl(gEl); }
+
+    setTimeout(() => {
+      Object.entries(dayData).forEach(([key, val]) => {
+        const idx = dayIds.indexOf(key);
+        if (idx !== -1) { const inp = document.getElementById(`di${idx+1}`); inp.value = val; flashEl(inp); }
+      });
+      const ps = document.getElementById('pasteStatus');
+      ps.classList.add('show');
+      setTimeout(() => ps.classList.remove('show'), 3000);
+    }, 90);
+  } catch(e) {}
+}
+
+function flashEl(el) {
+  el.classList.remove('autofill'); void el.offsetWidth;
+  el.classList.add('autofill');
+  setTimeout(() => el.classList.remove('autofill'), 700);
+}
+
+// ── GOAL HELPERS ─────────────────────────────────
+function countGoals(s) {
+  if (!s || s.trim() === '' || s.trim() === '0') return 0;
+  return Math.floor(s.replace(/\s/g,'').length / 2);
+}
+function getIDs(s) { return s ? s.replace(/\s/g,'') : ''; }
+
+// ── CALCULATE ────────────────────────────────────
+function runCalc() {
+  const err = document.getElementById('errMsg');
+  err.classList.remove('show');
+
+  const wid = document.getElementById('weekId').value.trim();
+  const gn  = parseInt(document.getElementById('goalsNum').value);
+
+  if (!wid || wid.length !== 6 || !/^\d{6}$/.test(wid)) {
+    err.textContent = 'WeekID must be 6 digits (DDMMYY)';
+    err.classList.add('show'); return;
+  }
+  if (!gn || gn < 1) {
+    err.textContent = 'GoalsNumber is required';
+    err.classList.add('show'); return;
+  }
+  if (!dayIds.length) dayIds = genWeekDays(wid) || Array.from({length:7},(_,i)=>`Day${i+1}`);
+
+  const days = {};
+  let total = 0;
+  for (let i = 1; i <= 7; i++) {
+    const id   = dayIds[i-1];
+    const raw  = document.getElementById(`di${i}`).value.trim();
+    const done = countGoals(raw);
+    const dp   = parseFloat(((done/gn)*100).toFixed(2));
+    days[id]   = { GoalsDone: done, GoalsIDs: getIDs(raw), DayProgress: dp };
+    total += done;
+  }
+  const wp = parseFloat(((total/gn)*100).toFixed(2));
+
+  // Build JSONs
+  const dlines = Object.entries(days).map(([k,v]) =>
+    `    "${k}": { "GoalsDone": ${v.GoalsDone}, "GoalsIDs": "${v.GoalsIDs}", "DayProgress": ${v.DayProgress} }`
+  ).join(',\n');
+  rawJson = `{\n  "WeekID": "${wid}",\n  "WeekProgress": ${wp},\n  "GoalsNumber": ${gn},\n  "Days": {\n${dlines}\n  }\n}`;
+
+  const { nwid, days: nwdays } = getNextWeekIds(wid);
+  rawNext = `${nwid} {\n${nwdays.map(d => `  "${d}" : ""`).join(',\n')}\n} GoalsNumber: ${gn}`;
+
+  document.getElementById('jsonOut').innerHTML = colorJson(rawJson);
+  document.getElementById('nextOut').innerHTML = colorJson(rawNext);
+  document.getElementById('panelJson').classList.add('show');
+  document.getElementById('panelNext').classList.add('show');
+
+  animateCircle(wp);
+
+  document.getElementById('perfWrap').classList.add('show');
+  callFletcher(wid, wp, total, gn, days);
+  document.getElementById('resetBtn').classList.add('show');
+}
+
+// ── CIRCLE & COLOR ───────────────────────────────
+function progressColor(pct) {
+  // Smooth HSL gradient: red (0°) → amber (38°) → green (120°)
+  const p = Math.min(Math.max(pct, 0), 100);
+  let h, s, l;
+  if (p < 50) {
+    h = Math.round(p * 0.76);    // 0 → 38
+    s = 82; l = 44;
+  } else {
+    h = Math.round(38 + (p - 50) * 1.64); // 38 → 120
+    s = 72; l = 40;
+  }
+  return `hsl(${h},${s}%,${l}%)`;
+}
+
+function animateCircle(pct) {
+  const fill    = Math.min(pct, 100) / 100;
+  const offset  = CIRCUM - fill * CIRCUM;
+  const color   = progressColor(pct);
+  const arc     = document.getElementById('perfArc');
+  arc.style.strokeDashoffset = offset;
+  arc.setAttribute('stroke', color);
+  document.getElementById('perfPct').textContent = pct.toFixed(1) + '%';
+  document.getElementById('perfPct').style.color = color;
+
+  const banner = document.getElementById('congratsBanner');
+  if (pct > 80) {
+    setTimeout(() => {
+      banner.classList.add('show');
+      spawnConfetti();
+    }, 700);
+  } else {
+    banner.classList.remove('show');
+  }
+}
+
+function spawnConfetti() {
+  const wrap = document.getElementById('circleWrap');
+  const cols = ['#22c55e','#0d9488','#3b82f6','#8b5cf6','#f59e0b'];
+  for (let i = 0; i < 14; i++) {
+    const p = document.createElement('div');
+    p.className = 'confetti-p';
+    const angle = (i/14)*360;
+    const dist  = 52 + Math.random()*25;
+    p.style.setProperty('--tx', Math.cos(angle*Math.PI/180)*dist+'px');
+    p.style.setProperty('--ty', Math.sin(angle*Math.PI/180)*dist+'px');
+    p.style.background = cols[i % cols.length];
+    p.style.left = '50%'; p.style.top = '50%';
+    p.style.marginLeft = '-2.5px'; p.style.marginTop = '-2.5px';
+    p.style.animationDelay = (Math.random()*0.2)+'s';
+    wrap.appendChild(p);
+    setTimeout(() => p.remove(), 1200);
+  }
+}
+
+// ── JSON COLOR ───────────────────────────────────
+function colorJson(s) {
+  return s
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"([\w]+)"(\s*:)/g, '<span class="jk">"$1"</span>$2')
+    .replace(/:\s*"([^"]*)"/g, ': <span class="js">"$1"</span>')
+    .replace(/:\s*(-?\d+\.?\d*)/g, ': <span class="jn">$1</span>');
+}
+
+// ── COPY ─────────────────────────────────────────
+async function doCopy(type) {
+  const text = type === 'json' ? rawJson : rawNext;
+  const btn  = document.getElementById(type === 'json' ? 'copyJsonBtn' : 'copyNextBtn');
+  try { await navigator.clipboard.writeText(text); }
+  catch {
+    const ta = document.createElement('textarea');
+    ta.value = text; document.body.appendChild(ta);
+    ta.select(); document.execCommand('copy');
+    document.body.removeChild(ta);
+  }
+  btn.textContent = 'Copied ✓'; btn.classList.add('copied');
+  setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2200);
+}
+
+// ── FLETCHER ─────────────────────────────────────
+async function callFletcher(wid, wp, done, total, days) {
+  const body  = document.getElementById('perfBody');
+  const panel = document.getElementById('perfPanel');
+  body.innerHTML = `<div class="perf-status"><span class="dots"><span></span><span></span><span></span></span>&nbsp; Evaluating performance...</div>`;
+
+  const summary = Object.entries(days)
+    .map(([k,v]) => `${k}: ${v.GoalsDone} goals (${v.DayProgress}%)`)
+    .join(', ');
+
+  const prompt = `You are Terence Fletcher from Whiplash — demanding, precise, intense. Evaluate this week's performance.
+WeekID: ${wid} | Week Progress: ${wp}% | Goals Done: ${done}/${total}
+Daily: ${summary}
+Write a short performance review in Fletcher's voice (2–3 paragraphs). No intro. No sign-off. Just the review. Be honest and push for excellence. If progress > 80%, acknowledge it but demand more. If < 50%, be sharp.`;
+
+  try {
+    const ANTHROPIC_API_KEY = '';
+    if (!ANTHROPIC_API_KEY) { localFletcher(body, wp); return; }
+
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-opus-4-5', max_tokens: 420, stream: true,
+        messages: [{ role:'user', content: prompt }]
+      })
+    });
+    if (!res.ok) throw new Error();
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let full = '';
+    body.innerHTML = '<p></p>';
+    const cur = document.createElement('span');
+    cur.className = 'cursor';
+    body.querySelector('p').appendChild(cur);
+
+    while (true) {
+      const {done:dr, value} = await reader.read();
+      if (dr) break;
+      const chunk = decoder.decode(value, {stream:true});
+      for (const line of chunk.split('\n')) {
+        if (!line.startsWith('data:')) continue;
+        const d = line.slice(5).trim();
+        if (d === '[DONE]') break;
+        try {
+          const j = JSON.parse(d);
+          if (j.type === 'content_block_delta' && j.delta?.text) {
+            full += j.delta.text;
+            cur.remove();
+            body.innerHTML = '';
+            full.split('\n\n').filter(p=>p.trim()).forEach((t,i,a) => {
+              const el = document.createElement('p'); el.textContent = t;
+              body.appendChild(el);
+              if (i === a.length-1) el.appendChild(cur);
+            });
+          }
+        } catch(e) {}
+      }
+    }
+    cur.remove();
+  } catch(e) { localFletcher(body, wp); }
+}
+
+function localFletcher(body, wp) {
+  const sets = {
+    hi: [
+      "You cleared eighty percent. Good. That means you had twenty left on the table and you chose not to take it. That is not acceptable to me. The standard isn't what you managed to do — it's what you left undone.",
+      "I see the number. I also see the days where you coasted. The days where you could have pushed harder and decided not to. You don't get credit for showing up. You get credit for finishing. Every single thing.",
+      "You want me to congratulate you? Fine. You did well. Now forget about it and come back next week ready to do better. Excellence isn't a destination — it's a discipline you practice every day without exception."
+    ],
+    mid: [
+      "Sixty to seventy-nine percent. You're in the middle. The middle is where people with potential go to disappear. You know exactly what you need to do — you just haven't decided yet that you're actually going to do it.",
+      "Look at the daily breakdown. You had good days. You had days that were garbage. That inconsistency tells me everything I need to know about where your head is. Talent without consistency is just noise.",
+      "I'm not angry. I'm disappointed, which is worse. You have more in you than this. Stop deciding how much effort each day deserves and just give everything every time. It's simple. It's not easy. Do it anyway."
+    ],
+    lo: [
+      "This is what happens when you don't take your own goals seriously. You set them. You wrote them down. And then you looked at them and shrugged. That's not a performance problem — that's a commitment problem.",
+      "I don't accept excuses. I don't want to hear about circumstances. The number is the number. You decided, at some point during this week, that something else mattered more. That's on you.",
+      "Next week you come back with a different result, or you stop pretending these goals mean something to you. There is no in-between. Make a decision and live with it."
+    ]
+  };
+  const msgs = wp >= 80 ? sets.hi : wp >= 55 ? sets.mid : sets.lo;
+  body.innerHTML = '';
+  msgs.forEach(m => { const p = document.createElement('p'); p.textContent = m; body.appendChild(p); });
+}
+
+// ── RESET ────────────────────────────────────────
+function doReset() {
+  document.getElementById('weekId').value = '';
+  document.getElementById('goalsNum').value = '';
+  document.getElementById('pasteBox').value = '';
+  document.getElementById('weekHint').classList.remove('show');
+  document.getElementById('pasteStatus').classList.remove('show');
+  const names = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  for (let i = 1; i <= 7; i++) {
+    document.getElementById(`di${i}`).value = '';
+    const l = document.getElementById(`lbl${i}`);
+    l.textContent = names[i-1]; l.classList.add('empty');
+  }
+  dayIds = []; rawJson = ''; rawNext = '';
+  ['panelJson','panelNext'].forEach(id => document.getElementById(id).classList.remove('show'));
+  document.getElementById('perfWrap').classList.remove('show');
+  document.getElementById('congratsBanner').classList.remove('show');
+  document.getElementById('resetBtn').classList.remove('show');
+  document.getElementById('errMsg').classList.remove('show');
+  document.getElementById('perfArc').style.strokeDashoffset = CIRCUM;
+  document.getElementById('perfArc').setAttribute('stroke', '#e2e8f0');
+  document.getElementById('perfPct').textContent = '—';
+  document.getElementById('perfPct').style.color = '';
+}
+</script>
+</body>
+</html>
