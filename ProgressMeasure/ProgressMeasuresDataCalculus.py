@@ -1,4 +1,3 @@
-https://learn.cisecurity.org/e/799323/l-799323-2019-11-15-3v7x/2mnnf/2688604488/h/poE_w6nCAOI5NdOMNSIFUndu6GTKnZfyEgWWvlkU39c
 
 import re
 import json
